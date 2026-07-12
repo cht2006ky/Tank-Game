@@ -1,0 +1,26 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
+    <title>坦克大战</title>
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+    <div id="game-wrapper">
+        <div id="game-container">
+            <canvas id="gameCanvas"></canvas>
+        </div>
+        <div id="mobile-controls">
+            <div id="dpad">
+                <button class="dpad-btn" id="btn-up" data-dir="up">▲</button>
+                <button class="dpad-btn" id="btn-left" data-dir="left">◄</button>
+                <button class="dpad-btn" id="btn-right" data-dir="right">►</button>
+                <button class="dpad-btn" id="btn-down" data-dir="down">▼</button>
+            </div>
+            <button id="btn-fire">🔥</button>
+        </div>
+    </div>
+    <script src="game.js"></script>
+</body>
+</html>
