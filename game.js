@@ -46,8 +46,8 @@
     const PLAYER_SPEED = 2;
     const ENEMY_SPEED = 1;
     const BULLET_SPEED = 4;
-    const MAX_ENEMIES = 4;        // 同时在场最大敌人数
-    const TOTAL_ENEMIES = 10;     // 本关总敌人数
+    const MAX_ENEMIES = 15;        // 同时在场最大敌人数
+    const TOTAL_ENEMIES = 30;     // 本关总敌人数
     const PLAYER_LIVES = 3;
     const SHOOT_COOLDOWN = 20;    // 射击冷却帧数
     const RESPAWN_TIME = 90;      // 重生帧数
