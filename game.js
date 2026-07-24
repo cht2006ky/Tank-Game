@@ -43,10 +43,10 @@
     const DY = [-1, 0, 1, 0];
 
     // 游戏参数
-    const PLAYER_SPEED = 2;
-    const ENEMY_SPEED = 1;
-    const BULLET_SPEED = 4;
-    const MAX_ENEMIES = 15;        // 同时在场最大敌人数
+    const PLAYER_SPEED = 5;
+    const ENEMY_SPEED = 5;
+    const BULLET_SPEED = 8;
+    const MAX_ENEMIES = 12;        // 同时在场最大敌人数
     const TOTAL_ENEMIES = 30;     // 本关总敌人数
     const PLAYER_LIVES = 3;
     const SHOOT_COOLDOWN = 20;    // 射击冷却帧数
