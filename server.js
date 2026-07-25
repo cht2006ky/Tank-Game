@@ -43,8 +43,8 @@ function requireAuth(req, res, next) {
 
 // ============ 路由 ============
 
-// 首页（游戏页面）- 需要登录
-app.get('/', requireAuth, (req, res) => {
+// 首页（游戏页面）- 无需登录即可访问
+app.get('/', (req, res) => {
   res.sendFile(path.join(__dirname, 'index.html'));
 });
 

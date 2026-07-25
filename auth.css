@@ -153,3 +153,193 @@
     border-color: #fc9838;
     color: #fc9838;
 }
+
+/* ===== 顶部导航栏 ===== */
+#nav-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 44px;
+    background: #0f0f23;
+    border-bottom: 2px solid #4a4a6a;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 16px;
+    z-index: 100;
+    font-family: 'Courier New', monospace;
+}
+
+.nav-left {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+}
+
+.nav-logo {
+    color: #fc9838;
+    font-size: 18px;
+    font-weight: bold;
+    letter-spacing: 2px;
+}
+
+.nav-btn {
+    background: #2a2a4a;
+    border: 1px solid #4a4a6a;
+    color: #8a8aaa;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.15s;
+}
+
+.nav-btn:hover {
+    border-color: #fc9838;
+    color: #fc9838;
+}
+
+.nav-right {
+    display: flex;
+    align-items: center;
+}
+
+.auth-group {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.auth-group.hidden {
+    display: none;
+}
+
+.nav-link {
+    color: #8a8aaa;
+    text-decoration: none;
+    font-size: 14px;
+    transition: color 0.15s;
+}
+
+.nav-link:hover {
+    color: #fc9838;
+}
+
+.nav-btn-primary {
+    background: #6a4a1a;
+    border: 1px solid #c84c0c;
+    color: #fc9838;
+    padding: 6px 14px;
+    font-size: 13px;
+    font-family: 'Courier New', monospace;
+    cursor: pointer;
+    border-radius: 3px;
+    text-decoration: none;
+    transition: background 0.15s;
+}
+
+.nav-btn-primary:hover {
+    background: #8a6a2a;
+}
+
+.nav-username {
+    color: #8a8aaa;
+    font-size: 13px;
+}
+
+.nav-username span {
+    color: #fc9838;
+}
+
+.nav-btn-logout {
+    background: none;
+    border: 1px solid #4a4a6a;
+    color: #8a8aaa;
+    padding: 4px 10px;
+    font-size: 12px;
+    font-family: 'Courier New', monospace;
+    cursor: pointer;
+    border-radius: 3px;
+    transition: all 0.15s;
+}
+
+.nav-btn-logout:hover {
+    border-color: #e74c3c;
+    color: #e74c3c;
+}
+
+/* ===== 排行榜弹窗 ===== */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: rgba(0, 0, 0, 0.7);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+}
+
+.modal.hidden {
+    display: none;
+}
+
+.modal-content {
+    background: #0f0f23;
+    border: 3px solid #4a4a6a;
+    border-radius: 4px;
+    width: 90%;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow: hidden;
+}
+
+.modal-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px 20px;
+    border-bottom: 1px solid #4a4a6a;
+}
+
+.modal-header h2 {
+    color: #fc9838;
+    font-size: 20px;
+    font-family: 'Courier New', monospace;
+    margin: 0;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    color: #8a8aaa;
+    font-size: 28px;
+    cursor: pointer;
+    padding: 0;
+    line-height: 1;
+    transition: color 0.15s;
+}
+
+.modal-close:hover {
+    color: #fc9838;
+}
+
+.modal-body {
+    padding: 40px 20px;
+    text-align: center;
+}
+
+.modal-body .coming-soon {
+    color: #8a8aaa;
+    font-family: 'Courier New', monospace;
+    font-size: 14px;
+}
+
+/* 调整游戏区域位置，避免被导航栏遮挡 */
+#game-wrapper {
+    padding-top: 46px;
+}

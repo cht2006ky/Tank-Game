@@ -45,11 +45,11 @@
     // 游戏参数
     const PLAYER_SPEED = 5;
     const ENEMY_SPEED = 3;
-    const BULLET_SPEED = 8;
+    const BULLET_SPEED = 16;
     const MAX_ENEMIES = 12;        // 同时在场最大敌人数
     const TOTAL_ENEMIES = 30;     // 本关总敌人数
     const PLAYER_LIVES = 3;
-    const SHOOT_COOLDOWN = 20;    // 射击冷却帧数
+    const SHOOT_COOLDOWN = 5;    // 射击冷却帧数
     const RESPAWN_TIME = 90;      // 重生帧数
     const INVINCIBLE_TIME = 120;  // 无敌帧数
 

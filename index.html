@@ -8,10 +8,27 @@
     <link rel="stylesheet" href="auth.css">
 </head>
 <body>
-    <div id="user-bar">
-        <span>指挥官: <span class="username" id="display-username">-</span></span>
-        <button class="logout-btn" id="btn-logout">登出</button>
-    </div>
+    <!-- 顶部导航栏 -->
+    <nav id="nav-bar">
+        <div class="nav-left">
+            <span class="nav-logo">坦克大战</span>
+            <button class="nav-btn" id="btn-leaderboard">排行榜</button>
+        </div>
+        <div class="nav-right" id="nav-auth">
+            <!-- 未登录状态 -->
+            <div id="auth-guest" class="auth-group hidden">
+                <a href="/login.html" class="nav-link">登录</a>
+                <a href="/register.html" class="nav-btn-primary">注册</a>
+            </div>
+            <!-- 已登录状态 -->
+            <div id="auth-user" class="auth-group hidden">
+                <span class="nav-username">指挥官: <span id="display-username">-</span></span>
+                <button class="nav-btn-logout" id="btn-logout">退出登录</button>
+            </div>
+        </div>
+    </nav>
+
+    <!-- 游戏区域 -->
     <div id="game-wrapper">
         <div id="game-container">
             <canvas id="gameCanvas"></canvas>
@@ -26,20 +43,57 @@
             <button id="btn-fire">🔥</button>
         </div>
     </div>
+
+    <!-- 排行榜弹窗（占位） -->
+    <div id="leaderboard-modal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h2>排行榜</h2>
+                <button class="modal-close" id="btn-close-leaderboard">×</button>
+            </div>
+            <div class="modal-body">
+                <p class="coming-soon">排行榜功能即将上线...</p>
+            </div>
+        </div>
+    </div>
+
     <script src="game.js"></script>
     <script>
-        // 加载用户信息
+        // 加载用户信息并更新导航栏
         fetch('/api/me').then(r => r.json()).then(data => {
+            const guestDiv = document.getElementById('auth-guest');
+            const userDiv = document.getElementById('auth-user');
+
             if (data.loggedIn) {
+                // 已登录：显示用户名和退出按钮
                 document.getElementById('display-username').textContent = data.username;
+                userDiv.classList.remove('hidden');
+                guestDiv.classList.add('hidden');
             } else {
-                window.location.href = '/login.html';
+                // 未登录：显示登录和注册按钮
+                guestDiv.classList.remove('hidden');
+                userDiv.classList.add('hidden');
             }
         });
+
         // 登出
         document.getElementById('btn-logout').addEventListener('click', async () => {
             await fetch('/api/logout', { method: 'POST' });
-            window.location.href = '/login.html';
+            location.reload();
+        });
+
+        // 排行榜弹窗
+        const leaderboardModal = document.getElementById('leaderboard-modal');
+        document.getElementById('btn-leaderboard').addEventListener('click', () => {
+            leaderboardModal.classList.remove('hidden');
+        });
+        document.getElementById('btn-close-leaderboard').addEventListener('click', () => {
+            leaderboardModal.classList.add('hidden');
+        });
+        leaderboardModal.addEventListener('click', (e) => {
+            if (e.target === leaderboardModal) {
+                leaderboardModal.classList.add('hidden');
+            }
         });
     </script>
 </body>
