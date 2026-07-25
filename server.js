@@ -135,6 +135,70 @@ app.get('/api/me', (req, res) => {
   }
 });
 
+// 保存游戏记录 API（需要登录）
+app.post('/api/game-records', async (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: '请先登录' });
+  }
+
+  const { scenario, final_score, result } = req.body;
+
+  if (!scenario || final_score === undefined || !result) {
+    return res.status(400).json({ error: '缺少游戏记录字段' });
+  }
+
+  try {
+    await pool.query(
+      'INSERT INTO game_records (user_id, scenario, final_score, result) VALUES ($1, $2, $3, $4)',
+      [req.session.userId, scenario, final_score, result]
+    );
+    res.json({ success: true, message: '游戏记录已保存' });
+  } catch (err) {
+    console.error('保存游戏记录错误:', err);
+    res.status(500).json({ error: '服务器错误' });
+  }
+});
+
+// 获取当前用户游戏记录 API（需要登录）
+app.get('/api/game-records', async (req, res) => {
+  if (!req.session.userId) {
+    return res.status(401).json({ error: '请先登录' });
+  }
+
+  try {
+    const result = await pool.query(
+      'SELECT id, scenario, final_score, result, played_at FROM game_records WHERE user_id = $1 ORDER BY played_at DESC LIMIT 50',
+      [req.session.userId]
+    );
+    res.json({ success: true, records: result.rows });
+  } catch (err) {
+    console.error('获取游戏记录错误:', err);
+    res.status(500).json({ error: '服务器错误' });
+  }
+});
+
+// 获取排行榜 API（公开，无需登录）
+app.get('/api/leaderboard', async (req, res) => {
+  try {
+    // 获取每个用户的最高分
+    const result = await pool.query(`
+      SELECT 
+        u.username,
+        MAX(gr.final_score) as best_score,
+        COUNT(gr.id) as games_played
+      FROM game_records gr
+      JOIN users u ON gr.user_id = u.id
+      GROUP BY u.id, u.username
+      ORDER BY best_score DESC
+      LIMIT 10
+    `);
+    res.json({ success: true, leaderboard: result.rows });
+  } catch (err) {
+    console.error('获取排行榜错误:', err);
+    res.status(500).json({ error: '服务器错误' });
+  }
+});
+
 // 启动服务器
 app.listen(PORT, () => {
   console.log(`坦克大战服务器运行在 http://localhost:${PORT}`);

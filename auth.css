@@ -343,3 +343,78 @@
 #game-wrapper {
     padding-top: 46px;
 }
+
+/* ===== 排行榜表格样式 ===== */
+.modal-leaderboard {
+    max-width: 500px;
+}
+
+.leaderboard-loading,
+.leaderboard-empty,
+.leaderboard-error {
+    padding: 40px 20px;
+    text-align: center;
+    color: #8a8aaa;
+    font-family: 'Courier New', monospace;
+}
+
+.leaderboard-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-family: 'Courier New', monospace;
+}
+
+.leaderboard-table th,
+.leaderboard-table td {
+    padding: 10px 12px;
+    text-align: center;
+}
+
+.leaderboard-table th {
+    background: #2a2a4a;
+    color: #8a8aaa;
+    font-size: 12px;
+    font-weight: normal;
+    border-bottom: 1px solid #4a4a6a;
+}
+
+.leaderboard-table td {
+    color: #e0e0e0;
+    font-size: 13px;
+    border-bottom: 1px solid #1a1a2e;
+}
+
+.leaderboard-table tr:hover td {
+    background: #1a1a2e;
+}
+
+.leaderboard-table .rank {
+    font-weight: bold;
+    color: #8a8aaa;
+}
+
+.leaderboard-table .top-1 .rank {
+    color: #ffd700;
+}
+
+.leaderboard-table .top-2 .rank {
+    color: #c0c0c0;
+}
+
+.leaderboard-table .top-3 .rank {
+    color: #cd7f32;
+}
+
+.leaderboard-table .username {
+    color: #fc9838;
+}
+
+.leaderboard-table .score {
+    font-weight: bold;
+    color: #8aff8a;
+}
+
+.leaderboard-table .games {
+    color: #6a6a8a;
+    font-size: 12px;
+}

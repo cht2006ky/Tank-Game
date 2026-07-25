@@ -47,7 +47,7 @@
     const ENEMY_SPEED = 3;
     const BULLET_SPEED = 16;
     const MAX_ENEMIES = 12;        // 同时在场最大敌人数
-    const TOTAL_ENEMIES = 30;     // 本关总敌人数
+    const TOTAL_ENEMIES = 20;     // 本关总敌人数
     const PLAYER_LIVES = 3;
     const SHOOT_COOLDOWN = 5;    // 射击冷却帧数
     const RESPAWN_TIME = 90;      // 重生帧数
@@ -136,6 +136,86 @@
     let mobileDir = -1;
     let mobileFire = false;
     let frameCount = 0;
+    let recordSaved = false;  // 游戏记录是否已保存
+    let isLoggedIn = false;   // 用户登录状态
+
+    // ---- 保存游戏记录 ----
+    async function saveGameRecord(result) {
+        if (recordSaved) return;  // 避免重复保存
+        recordSaved = true;
+
+        const finalScore = enemiesKilled * 100;
+        const scenario = '经典关卡';
+
+        if (isLoggedIn) {
+            try {
+                const res = await fetch('/api/game-records', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        scenario: scenario,
+                        final_score: finalScore,
+                        result: result
+                    })
+                });
+                const data = await res.json();
+                if (data.success) {
+                    showNotification('您的游戏记录已经保存', 'success');
+                } else {
+                    showNotification('保存记录失败: ' + (data.error || '未知错误'), 'error');
+                }
+            } catch (e) {
+                showNotification('网络错误，记录未保存', 'error');
+            }
+        } else {
+            showNotification('登录后可保存你的游戏记录', 'warning');
+        }
+    }
+
+    // ---- 显示通知弹窗 ----
+    function showNotification(message, type) {
+        // 移除已存在的通知
+        const existing = document.getElementById('game-notification');
+        if (existing) existing.remove();
+
+        const notification = document.createElement('div');
+        notification.id = 'game-notification';
+        notification.style.cssText = `
+            position: fixed;
+            top: 60px;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 12px 24px;
+            border-radius: 4px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            z-index: 10000;
+            opacity: 0;
+            transition: opacity 0.3s;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+            ${type === 'success' ? 'background: #1a4a1a; border: 2px solid #4a8a4a; color: #8aff8a;' :
+              type === 'warning' ? 'background: #4a3a1a; border: 2px solid #8a6a2a; color: #fc9838;' :
+              'background: #4a1a1a; border: 2px solid #8a2a2a; color: #ff6a6a;'}
+        `;
+        notification.textContent = message;
+        document.body.appendChild(notification);
+
+        // 延迟显示，确保 DOM 已更新
+        requestAnimationFrame(() => {
+            notification.style.opacity = '1';
+        });
+
+        // 5秒后自动消失
+        setTimeout(() => {
+            notification.style.opacity = '0';
+            setTimeout(() => notification.remove(), 300);
+        }, 5000);
+    }
+
+    // ---- 全局函数：设置登录状态 ----
+    window.setGameLoginState = function(loggedIn) {
+        isLoggedIn = loggedIn;
+    };
 
     // ---- 地图操作 ----
     function cloneMap() {
@@ -320,6 +400,7 @@
                     bullets.splice(i, 1);
                     gameState = 'gameover';
                     sfxGameOver();
+                    saveGameRecord('失败');
                     continue;
                 }
             }
@@ -338,6 +419,7 @@
                         bullets.splice(i, 1);
                         if (enemiesKilled >= TOTAL_ENEMIES) {
                             gameState = 'victory';
+                            saveGameRecord('通关');
                         }
                         break;
                     }
@@ -354,6 +436,7 @@
                         if (player.lives <= 0) {
                             gameState = 'gameover';
                             sfxGameOver();
+                            saveGameRecord('失败');
                         } else {
                             player.respawnTimer = RESPAWN_TIME;
                         }
@@ -785,6 +868,7 @@
         enemiesSpawned = 0;
         spawnTimer = 60;
         baseAlive = true;
+        recordSaved = false;
         gameState = 'playing';
     }
 

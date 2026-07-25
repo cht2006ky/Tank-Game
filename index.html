@@ -22,6 +22,7 @@
             </div>
             <!-- 已登录状态 -->
             <div id="auth-user" class="auth-group hidden">
+                <a href="/profile.html" class="nav-link">个人中心</a>
                 <span class="nav-username">指挥官: <span id="display-username">-</span></span>
                 <button class="nav-btn-logout" id="btn-logout">退出登录</button>
             </div>
@@ -44,20 +45,28 @@
         </div>
     </div>
 
-    <!-- 排行榜弹窗（占位） -->
+    <!-- 排行榜弹窗 -->
     <div id="leaderboard-modal" class="modal hidden">
-        <div class="modal-content">
+        <div class="modal-content modal-leaderboard">
             <div class="modal-header">
-                <h2>排行榜</h2>
+                <h2>排行榜 TOP 10</h2>
                 <button class="modal-close" id="btn-close-leaderboard">×</button>
             </div>
-            <div class="modal-body">
-                <p class="coming-soon">排行榜功能即将上线...</p>
+            <div class="modal-body" id="leaderboard-body">
+                <div class="leaderboard-loading">加载中...</div>
             </div>
         </div>
     </div>
 
     <script src="game.js"></script>
+    <script>
+        // 初始化游戏登录状态
+        window.initGameLoginState = function(loggedIn) {
+            if (window.setGameLoginState) {
+                window.setGameLoginState(loggedIn);
+            }
+        };
+    </script>
     <script>
         // 加载用户信息并更新导航栏
         fetch('/api/me').then(r => r.json()).then(data => {
@@ -69,10 +78,14 @@
                 document.getElementById('display-username').textContent = data.username;
                 userDiv.classList.remove('hidden');
                 guestDiv.classList.add('hidden');
+                // 设置游戏登录状态
+                if (window.setGameLoginState) window.setGameLoginState(true);
             } else {
                 // 未登录：显示登录和注册按钮
                 guestDiv.classList.remove('hidden');
                 userDiv.classList.add('hidden');
+                // 设置游戏登录状态
+                if (window.setGameLoginState) window.setGameLoginState(false);
             }
         });
 
@@ -84,8 +97,49 @@
 
         // 排行榜弹窗
         const leaderboardModal = document.getElementById('leaderboard-modal');
+        const leaderboardBody = document.getElementById('leaderboard-body');
+
+        // 加载排行榜数据
+        async function loadLeaderboard() {
+            leaderboardBody.innerHTML = '<div class="leaderboard-loading">加载中...</div>';
+            try {
+                const res = await fetch('/api/leaderboard');
+                const data = await res.json();
+                if (!data.success || data.leaderboard.length === 0) {
+                    leaderboardBody.innerHTML = '<div class="leaderboard-empty">暂无排行数据</div>';
+                    return;
+                }
+
+                leaderboardBody.innerHTML = `
+                    <table class="leaderboard-table">
+                        <thead>
+                            <tr>
+                                <th>排名</th>
+                                <th>指挥官</th>
+                                <th>最高分</th>
+                                <th>场次</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            ${data.leaderboard.map((item, index) => `
+                                <tr class="${index < 3 ? 'top-' + (index + 1) : ''}">
+                                    <td class="rank">${index + 1}</td>
+                                    <td class="username">${item.username}</td>
+                                    <td class="score">${item.best_score}</td>
+                                    <td class="games">${item.games_played}</td>
+                                </tr>
+                            `).join('')}
+                        </tbody>
+                    </table>
+                `;
+            } catch (e) {
+                leaderboardBody.innerHTML = '<div class="leaderboard-error">加载失败，请重试</div>';
+            }
+        }
+
         document.getElementById('btn-leaderboard').addEventListener('click', () => {
             leaderboardModal.classList.remove('hidden');
+            loadLeaderboard();
         });
         document.getElementById('btn-close-leaderboard').addEventListener('click', () => {
             leaderboardModal.classList.add('hidden');

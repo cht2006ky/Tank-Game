@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>坦克大战 - 个人中心</title>
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="auth.css">
+    <style>
+        .profile-wrapper {
+            min-height: 100vh;
+            background: #1a1a2e;
+            padding-top: 60px;
+        }
+        .profile-container {
+            max-width: 800px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .profile-header {
+            background: #0f0f23;
+            border: 2px solid #4a4a6a;
+            padding: 20px;
+            margin-bottom: 20px;
+            border-radius: 4px;
+        }
+        .profile-header h1 {
+            color: #fc9838;
+            font-size: 24px;
+            margin: 0 0 10px 0;
+        }
+        .profile-header p {
+            color: #8a8aaa;
+            margin: 0;
+        }
+        .records-section {
+            background: #0f0f23;
+            border: 2px solid #4a4a6a;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .records-header {
+            background: #2a2a4a;
+            padding: 12px 20px;
+            border-bottom: 1px solid #4a4a6a;
+        }
+        .records-header h2 {
+            color: #fc9838;
+            font-size: 16px;
+            margin: 0;
+        }
+        .records-list {
+            max-height: 400px;
+            overflow-y: auto;
+        }
+        .record-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 12px 20px;
+            border-bottom: 1px solid #2a2a4a;
+        }
+        .record-item:last-child {
+            border-bottom: none;
+        }
+        .record-item:hover {
+            background: #1a1a2e;
+        }
+        .record-info {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        .record-scenario {
+            color: #e0e0e0;
+            font-size: 14px;
+        }
+        .record-time {
+            color: #6a6a8a;
+            font-size: 12px;
+        }
+        .record-stats {
+            text-align: right;
+        }
+        .record-score {
+            color: #fc9838;
+            font-size: 18px;
+            font-weight: bold;
+        }
+        .record-result {
+            font-size: 12px;
+            padding: 2px 8px;
+            border-radius: 3px;
+            margin-top: 4px;
+            display: inline-block;
+        }
+        .record-result.victory {
+            background: #1a4a1a;
+            color: #8aff8a;
+        }
+        .record-result.defeat {
+            background: #4a1a1a;
+            color: #ff6a6a;
+        }
+        .no-records {
+            padding: 40px 20px;
+            text-align: center;
+            color: #6a6a8a;
+        }
+        .back-btn {
+            display: inline-block;
+            background: #2a2a4a;
+            border: 1px solid #4a4a6a;
+            color: #8a8aaa;
+            padding: 8px 16px;
+            margin-top: 20px;
+            font-size: 14px;
+            cursor: pointer;
+            border-radius: 3px;
+            text-decoration: none;
+            transition: all 0.15s;
+        }
+        .back-btn:hover {
+            border-color: #fc9838;
+            color: #fc9838;
+        }
+    </style>
+</head>
+<body>
+    <!-- 顶部导航栏 -->
+    <nav id="nav-bar">
+        <div class="nav-left">
+            <span class="nav-logo">坦克大战</span>
+            <a href="/" class="nav-btn">返回游戏</a>
+        </div>
+        <div class="nav-right">
+            <span class="nav-username">指挥官: <span id="display-username">-</span></span>
+            <button class="nav-btn-logout" id="btn-logout">退出登录</button>
+        </div>
+    </nav>
+
+    <div class="profile-wrapper">
+        <div class="profile-container">
+            <div class="profile-header">
+                <h1>个人中心</h1>
+                <p>查看您的游戏历史记录</p>
+            </div>
+
+            <div class="records-section">
+                <div class="records-header">
+                    <h2>游戏记录</h2>
+                </div>
+                <div class="records-list" id="records-list">
+                    <div class="no-records">加载中...</div>
+                </div>
+            </div>
+
+            <a href="/" class="back-btn">返回游戏</a>
+        </div>
+    </div>
+
+    <script>
+        // 检查登录状态
+        fetch('/api/me').then(r => r.json()).then(data => {
+            if (!data.loggedIn) {
+                window.location.href = '/login.html';
+                return;
+            }
+            document.getElementById('display-username').textContent = data.username;
+            loadRecords();
+        });
+
+        // 加载游戏记录
+        function loadRecords() {
+            fetch('/api/game-records').then(r => r.json()).then(data => {
+                const list = document.getElementById('records-list');
+                if (!data.success || data.records.length === 0) {
+                    list.innerHTML = '<div class="no-records">暂无游戏记录</div>';
+                    return;
+                }
+
+                list.innerHTML = data.records.map(record => {
+                    const date = new Date(record.played_at).toLocaleString('zh-CN');
+                    const resultClass = record.result === '通关' ? 'victory' : 'defeat';
+                    return `
+                        <div class="record-item">
+                            <div class="record-info">
+                                <span class="record-scenario">${record.scenario}</span>
+                                <span class="record-time">${date}</span>
+                            </div>
+                            <div class="record-stats">
+                                <div class="record-score">${record.final_score} 分</div>
+                                <span class="record-result ${resultClass}">${record.result}</span>
+                            </div>
+                        </div>
+                    `;
+                }).join('');
+            });
+        }
+
+        // 登出
+        document.getElementById('btn-logout').addEventListener('click', async () => {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.href = '/login.html';
+        });
+    </script>
+</body>
+</html>
