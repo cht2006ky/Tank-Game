@@ -1,0 +1,141 @@
+const express = require('express');
+const session = require('express-session');
+const bcrypt = require('bcrypt');
+const { Pool } = require('pg');
+const path = require('path');
+
+const app = express();
+const PORT = process.env.PORT || 3000;
+
+// PostgreSQL 连接配置
+const pool = new Pool({
+  host: process.env.DB_HOST || 'localhost',
+  port: process.env.DB_PORT || 5432,
+  database: process.env.DB_NAME || 'tank_game',
+  user: process.env.DB_USER || 'postgres',
+  password: process.env.DB_PASSWORD || '111111',
+});
+
+// 中间件
+app.use(express.json());
+app.use(express.urlencoded({ extended: true }));
+app.use(session({
+  secret: process.env.SESSION_SECRET || 'tank-game-secret-key-change-in-production',
+  resave: false,
+  saveUninitialized: false,
+  cookie: {
+    maxAge: 24 * 60 * 60 * 1000, // 24小时
+    httpOnly: true,
+  },
+}));
+
+// 静态文件
+app.use(express.static(path.join(__dirname)));
+
+// 认证中间件 - 未登录重定向到登录页
+function requireAuth(req, res, next) {
+  if (req.session.userId) {
+    next();
+  } else {
+    res.redirect('/login.html');
+  }
+}
+
+// ============ 路由 ============
+
+// 首页（游戏页面）- 需要登录
+app.get('/', requireAuth, (req, res) => {
+  res.sendFile(path.join(__dirname, 'index.html'));
+});
+
+// 注册 API
+app.post('/api/register', async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ error: '用户名和密码不能为空' });
+  }
+  if (username.length < 2 || username.length > 50) {
+    return res.status(400).json({ error: '用户名长度需在2-50之间' });
+  }
+  if (password.length < 6) {
+    return res.status(400).json({ error: '密码长度至少6位' });
+  }
+
+  try {
+    const hashedPassword = await bcrypt.hash(password, 10);
+    const result = await pool.query(
+      'INSERT INTO users (username, password) VALUES ($1, $2) RETURNING id, username',
+      [username, hashedPassword]
+    );
+
+    // 注册成功自动登录
+    req.session.userId = result.rows[0].id;
+    req.session.username = result.rows[0].username;
+
+    res.json({ success: true, username: result.rows[0].username });
+  } catch (err) {
+    if (err.code === '23505') {
+      return res.status(400).json({ error: '用户名已存在' });
+    }
+    console.error('注册错误:', err);
+    res.status(500).json({ error: '服务器错误' });
+  }
+});
+
+// 登录 API
+app.post('/api/login', async (req, res) => {
+  const { username, password } = req.body;
+
+  if (!username || !password) {
+    return res.status(400).json({ error: '用户名和密码不能为空' });
+  }
+
+  try {
+    const result = await pool.query(
+      'SELECT id, username, password FROM users WHERE username = $1',
+      [username]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(401).json({ error: '用户名或密码错误' });
+    }
+
+    const user = result.rows[0];
+    const match = await bcrypt.compare(password, user.password);
+
+    if (!match) {
+      return res.status(401).json({ error: '用户名或密码错误' });
+    }
+
+    // 登录成功
+    req.session.userId = user.id;
+    req.session.username = user.username;
+
+    res.json({ success: true, username: user.username });
+  } catch (err) {
+    console.error('登录错误:', err);
+    res.status(500).json({ error: '服务器错误' });
+  }
+});
+
+// 登出 API
+app.post('/api/logout', (req, res) => {
+  req.session.destroy(() => {
+    res.json({ success: true });
+  });
+});
+
+// 获取当前用户信息
+app.get('/api/me', (req, res) => {
+  if (req.session.userId) {
+    res.json({ loggedIn: true, username: req.session.username });
+  } else {
+    res.json({ loggedIn: false });
+  }
+});
+
+// 启动服务器
+app.listen(PORT, () => {
+  console.log(`坦克大战服务器运行在 http://localhost:${PORT}`);
+});

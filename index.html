@@ -5,8 +5,13 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no, maximum-scale=1.0">
     <title>坦克大战</title>
     <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="auth.css">
 </head>
 <body>
+    <div id="user-bar">
+        <span>指挥官: <span class="username" id="display-username">-</span></span>
+        <button class="logout-btn" id="btn-logout">登出</button>
+    </div>
     <div id="game-wrapper">
         <div id="game-container">
             <canvas id="gameCanvas"></canvas>
@@ -22,5 +27,20 @@
         </div>
     </div>
     <script src="game.js"></script>
+    <script>
+        // 加载用户信息
+        fetch('/api/me').then(r => r.json()).then(data => {
+            if (data.loggedIn) {
+                document.getElementById('display-username').textContent = data.username;
+            } else {
+                window.location.href = '/login.html';
+            }
+        });
+        // 登出
+        document.getElementById('btn-logout').addEventListener('click', async () => {
+            await fetch('/api/logout', { method: 'POST' });
+            window.location.href = '/login.html';
+        });
+    </script>
 </body>
 </html>

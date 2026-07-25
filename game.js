@@ -44,7 +44,7 @@
 
     // 游戏参数
     const PLAYER_SPEED = 5;
-    const ENEMY_SPEED = 5;
+    const ENEMY_SPEED = 3;
     const BULLET_SPEED = 8;
     const MAX_ENEMIES = 12;        // 同时在场最大敌人数
     const TOTAL_ENEMIES = 30;     // 本关总敌人数
