@@ -8,6 +8,10 @@
     <link rel="stylesheet" href="auth.css">
 </head>
 <body>
+    <!-- 光束背景画布 -->
+    <canvas id="beams-canvas"></canvas>
+    <div id="beams-overlay"></div>
+
     <!-- 顶部导航栏 -->
     <nav id="nav-bar">
         <div class="nav-left">
@@ -58,7 +62,12 @@
         </div>
     </div>
 
+    <script src="beams-background.js"></script>
     <script src="game.js"></script>
+    <script>
+        // 初始化光束背景
+        initBeamsBackground({ canvasId: 'beams-canvas', intensity: 'strong' });
+    </script>
     <script>
         // 初始化游戏登录状态
         window.initGameLoginState = function(loggedIn) {
