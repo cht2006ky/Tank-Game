@@ -7,13 +7,12 @@ const path = require('path');
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// PostgreSQL 连接配置
+// PostgreSQL 连接配置（Neon 云数据库）
 const pool = new Pool({
-  host: process.env.DB_HOST || 'localhost',
-  port: process.env.DB_PORT || 5432,
-  database: process.env.DB_NAME || 'tank_game',
-  user: process.env.DB_USER || 'postgres',
-  password: process.env.DB_PASSWORD || '111111',
+  connectionString: process.env.DATABASE_URL || 'postgresql://neondb_owner:npg_t1NpWB5KZkVy@ep-tiny-night-aol2whvh-pooler.c-2.ap-southeast-1.aws.neon.tech/neondb?sslmode=require',
+  ssl: {
+    rejectUnauthorized: false,
+  },
 });
 
 // 中间件
